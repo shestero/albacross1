@@ -69,7 +69,6 @@ You'll need local MySQL with database albacross deployed from [albacross1.sql](h
 The program will also try to write data into local ElastiSearch.
 
 See also [Polynote 0.5.0](https://github.com/polynote/polynote/releases) notebook with algorithm-only code (without Spark):
-
 [albacross1.ipynb](https://github.com/shestero/albacross1/blob/main/albacross1.ipynb)
 
 
