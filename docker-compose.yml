@@ -1,0 +1,36 @@
+version: '2.0'
+services:
+  scala:
+    image: sbtscala/scala-sbt:openjdk-8u342_1.8.0_2.13.10
+    depends_on:
+      - db
+      - es
+    volumes:
+      - .:/albacross
+    working_dir: /albacross
+    command: sbt run
+    environment:
+      - ALBACROSS_DB_URL=jdbc:mysql://db:3306/albacross1
+      - ALBACROSS_DB_USER=root
+      - ALBACROSS_ES_NODES=http://es
+  db:
+    image: mysql:5.6.38
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=albacross1
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./albacross1.sql:/docker-entrypoint-initdb.d/albacross1.sql
+  es:
+    image: elasticsearch:6.6.2
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ports:
+      - '9200:9200'
+volumes:
+  db:
+    driver: local
