@@ -42,13 +42,15 @@ This is implemented in the **solution3** algorithm, that use Spark.
 
 **Deployment**
 
-My program write input and output data to MySQL RDS (I used MariaDB 10.1.48).
+My program writes input and output data to MySQL tables.
 
-To make it working you should create the standard database albacross1 (find the data scheme in albacross1.sql file) and create RDS user shestero without password with the write permissions to the tables ***input*** and ***output***. Both tables contain IP4 ranges as two unsigned long integers (there is set id also present). To see them in human-readable form views ***sinput*** and ***soutput*** provided.
+You should create the MySQL database albacross1 (the data scheme is in [albacross1.sql](https://github.com/shestero/albacross1/blob/main/albacross1.sql) file) 
+and grant write permissions for db user (ALBACROSS_DB_USER environment variable, *root* by default) without password to the tables ***input*** and ***output***. 
+Both tables contain IP4 ranges as two unsigned long integers (there is set id also present). To see them in human-readable form views ***sinput*** and ***soutput*** provided.
 
-**How to build and run**
+**How to deploy, build and run**
 
-Get source from github: git clone [https://github.com/shestero/albacross1](URL)
+Get source from github: git clone [https://github.com/shestero/albacross1](https://github.com/shestero/albacross1)
 
 Using docker compose:
 
@@ -63,11 +65,11 @@ Host-system run with manual deploy:
 
     cd albacross1
     sbt run
-You'll need local MySQL with database albacross deployed from albacross1.sql image and *root* user without password. You may specify your user name using ALBACROSS_DB_USER environment variable.
+You'll need local MySQL with database albacross deployed from [albacross1.sql](https://github.com/shestero/albacross1/blob/main/albacross1.sql) image and *root* user without password. You may specify your user name using ALBACROSS_DB_USER environment variable.
 The program will also try to write data into local ElastiSearch.
 
-See also Polynote 0.5.0 notebook with algorithm-only code (without Spark):
+See also [Polynote 0.5.0](https://github.com/polynote/polynote/releases) notebook with algorithm-only code (without Spark):
 
-[https://github.com/shestero/albacross1/blob/main/albacross1.ipynb](URL)
+[albacross1.ipynb](https://github.com/shestero/albacross1/blob/main/albacross1.ipynb)
 
 
