@@ -48,6 +48,8 @@ You should create the MySQL database albacross1 (the data scheme is in [albacros
 and grant write permissions for db user (ALBACROSS_DB_USER environment variable, *root* by default) without password to the tables ***input*** and ***output***. 
 Both tables contain IP4 ranges as two unsigned long integers (there is set id also present). To see them in human-readable form views ***sinput*** and ***soutput*** provided.
 
+Output is also sent into ElastiSearch (default index is ***albacross***). 
+
 **How to deploy, build and run**
 
 Get source from github: git clone [https://github.com/shestero/albacross1](https://github.com/shestero/albacross1)
