@@ -25,7 +25,7 @@ Note that it require to sort all input IP which also mean to store all input dat
 
 If we have ordered input ranges we can optimize the algorithm storing in the memory only the different ends of currently overlapping input ranges. This is implemented in the **solution2** algorithm. It require presorted input.
 
-**Big data algorithms**
+**Big data algorithm**
 
 ***Lemma 1*:** Let’s split the input data by some IP into two parts (some input ranges may be split into two ones). Now if we perform the removing intersections on each of the part and combine the two results we will have the output ranges that is cover the same set of IP.
 Proof: the cutting doesn’t change the count of overlapping ranges for any IP.
