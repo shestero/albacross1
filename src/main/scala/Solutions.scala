@@ -38,13 +38,10 @@ object Solutions {
         assert(next >= 0)
         val out = counter -> next -> delta1 match {
           case ((0, 0), 1) => Iterator(ip, ip) // standalone single point range without overlapping
-          case ((0, 0), _) => Iterator.empty // several single point ranges at the same place
           case ((1, 1), _) => Iterator(ip - 1, ip + 1) // overlapping with single point point range(s)
           case ((0, 1), 1) | ((1, 0), 0) => Iterator.single(ip) // begin or end of a range
-          case ((0, 1), _) => Iterator(ip + 1) // overlapping with single point range(s) at the begin of a range
-          case ((1, 0), _) => Iterator(ip - 1) // overlapping with single point range(s) at the end of a range
-          case ((_, 1), _) => Iterator.single(ip + 1) // end of overlapping
-          case ((1, _), _) => Iterator.single(ip - 1) // begin of overlapping
+          case ((_, 1), _) => Iterator.single(ip + 1) // overlapping with single point range(s) at the begin of a range or end of overlapping
+          case ((1, _), _) => Iterator.single(ip - 1) // overlapping with single point range(s) at the end of a range or begin of overlapping
           case _ => Iterator.empty
         }
         output ++ out -> next
