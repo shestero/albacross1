@@ -4,18 +4,14 @@ import RangeStream._
 import Solutions._
 
 import java.util.TimeZone
-
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
-import scala.util.Try
-
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.SaveMode.Append
-import org.apache.spark.sql.SparkSession
-
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.elasticsearch.hadoop.cfg.ConfigurationOptions._
 import org.elasticsearch.spark.sql._
 
@@ -77,6 +73,19 @@ object Main extends App {
         .save()
     }
 
+    def saveOutput(df: DataFrame) = Future {
+      // save result to MySQL
+      df.write.mode(Append).format("jdbc").options(mysqlConnectionProperties).option("dbtable", tableOutput).save()
+
+      // save result to ElasticSearch
+      val long2ip = udf[String, Long](longToIp4 _)
+      val edf = df.withColumns(Map("begin" -> long2ip($"begin"), "end" -> long2ip($"end")))
+
+      val esIndex = sys.env.getOrElse("ALBACROSS_ES_INDEX", "albacross/docs")
+      if (esIndex.trim.nonEmpty)
+        edf.saveToEs(esIndex)
+    }
+
     val subtasks = Seq(
       Future(solution1(fork4).toSeq),
       Future(solution2(fork4.toSeq.sorted.iterator).toSeq),
@@ -95,22 +104,9 @@ object Main extends App {
     for {
       _ <- saveInputToMysql
       result <- futureComputed
-    } yield {
-      println("Saving results...")
-
-      val df = result.map { case (b, e) => (set_id, b, e) }.toDF("set_id", "begin", "end")
-
-      // save result to MySQL
-      df.write.mode(Append).format("jdbc").options(mysqlConnectionProperties).option("dbtable", tableOutput).save()
-
-      // save result to ElasticSearch
-      val long2ip = udf[String, Long](longToIp4 _)
-      val edf = df.withColumns(Map("begin" -> long2ip($"begin"), "end" -> long2ip($"end"))) // .drop("begin", "end")
-
-      val esIndex = sys.env.getOrElse("ALBACROSS_ES_INDEX", "albacross/docs")
-      if (esIndex.trim.nonEmpty)
-        edf.saveToEs(esIndex)
-    }
+      df = result.map { case (b, e) => (set_id, b, e) }.toDF("set_id", "begin", "end")
+      _ <- saveOutput(df)
+    } yield ()
   }
 
   // Run test with saved input ranges and 20 with random ranges
@@ -136,5 +132,7 @@ object Main extends App {
   println("Local Spark is to be stopped")
   Thread.sleep(1000)
 
-  Try{ context.stop(); spark.stop() }// may cause NoSuchFileException: .../hadoop-client-api-3.3.2.jar
+  context.stop()
+  spark.stop()
+  // shut down may cause NoSuchFileException: .../hadoop-client-api-3.3.2.jar
 }
